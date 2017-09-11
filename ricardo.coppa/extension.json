@@ -1,0 +1,48 @@
+{
+  "name": "coppa",
+  "version": "0.0.1",
+  "platform": "1.1.*",
+  "title": "COPPA Verification",
+  "description": "COPPA Verification",
+  "screens": [
+    {
+      "name": "AgeVerificationScreen"
+    },
+    {
+      "name": "UserBlockedScreen"
+    }
+  ],
+  "shortcuts": [
+    {
+      "title": "Age Verification",
+      "description": "This screen lets users verify their age",
+      "name": "ageVerification",
+      "screen": "@.AgeVerificationScreen"
+    },
+    {
+      "title": "User Blocked",
+      "description": "This screen blocks the user from using the app",
+      "name": "userBlocked",
+      "screen": "@.UserBlockedScreen"
+    }
+  ],
+  "pages": [
+    {
+      "name": "AgeVerificationPage",
+      "path": "server/build/index.html?page=AgeVerificationPage",
+      "type": "html"
+    }
+  ],
+  "settingsPages": [
+    {
+      "page": "@.AgeVerificationPage",
+      "title": "Age Verification Page"
+    }
+  ],
+  "settings": {
+    "minAge": 13,
+    "dateFormat": "DD-MM-YYYY",
+    "blockedTitle": "User Blocked",
+    "blockedMessage": "You must be at least 13 years old to use this app"
+  }
+}
