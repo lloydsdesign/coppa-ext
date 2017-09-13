@@ -32,6 +32,13 @@ import {
   STORAGE_KEY
 } from "./ageVerifier";
 
+import {
+  SCREEN_VERIFY,
+  SCREEN_SUCCESS,
+  SCREEN_BLOCKED,
+  BUTTON_CONTENT_CROSS
+} from "./screens/AgeVerification";
+
 const hasValidRoute = action => action.route && !isEmptyRoute(action.route);
 
 export const createLoginMiddleware = screens => {
@@ -57,8 +64,13 @@ export const createLoginMiddleware = screens => {
       const gotoUserBlockedScreen = () => {
         return next(
           redirectTo(rewrite(action, RESET_TO_ROUTE), {
-            screen: ext("UserBlocked"),
-            title: "User Blocked"
+            screen: ext("AgeVerification"),
+            title: "User Blocked",
+            props: {
+              activeScreen: SCREEN_BLOCKED,
+              buttonContent: BUTTON_CONTENT_CROSS,
+              buttonWidth: 64
+            }
           })
         );
       };
@@ -84,13 +96,7 @@ export const createLoginMiddleware = screens => {
           case SHOW_VERIFICATION:
             return gotoVerificationScreen({
               onSuccess: () => store.dispatch(rewrite(action, REPLACE)),
-              onFailure: () =>
-                store.dispatch(
-                  reset({
-                    screen: ext("UserBlocked"),
-                    title: "User Blocked"
-                  })
-                )
+              onFailure: () => {}
             });
             break;
           case EXIT_APP:

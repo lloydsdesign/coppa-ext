@@ -4,20 +4,22 @@ import { ext } from "../extension";
 import { connect } from "react-redux";
 import LinearGradient from "react-native-linear-gradient";
 
-class UserBlocked extends Component {
+export default class UserVerified extends Component {
   render() {
-    console.log("Rendering UserBlocked");
-    const { minAge, blockedTitle, blockedMessage, renderButton } = this.props;
+    console.log("Rendering UserVerified");
+    const {
+      /* minAge, blockedTitle, blockedMessage,  */ renderButton
+    } = this.props;
 
     return (
-      <LinearGradient colors={["#FF2EA6", "#4CC2F1"]} style={styles.container}>
-        <Text style={styles.title}>{blockedTitle || "We're sorry..."}</Text>
-        <Text style={styles.subtitle}>{blockedMessage || "You are under"}</Text>
+      <LinearGradient colors={["#66CCCC", "#00DEC4"]} style={styles.container}>
+        <Text style={styles.title}>Success!</Text>
+        <Text style={styles.subtitle}>Enjoy your app experience!</Text>
         {renderButton()}
       </LinearGradient>
     );
   }
-}
+} /* 
 
 const mapStateToProps = state => {
   const extName = ext();
@@ -32,7 +34,7 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(UserBlocked);
+export default connect(mapStateToProps)(UserBlocked); */
 
 const styles = StyleSheet.create({
   container: {

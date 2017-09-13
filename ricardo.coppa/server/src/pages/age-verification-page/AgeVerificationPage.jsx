@@ -49,19 +49,18 @@ class AgeVerificationPage extends Component {
     const { extension } = this.props;
     const { extension: nextExtension } = nextProps;
 
-    console.log("ComponentWillRecieveProps\nState:\n", this.state);
-    console.log("\nnextProps:\n", nextProps);
-
-    const settings = ["minAge", "dateFormat", "blockedTitle", "blockedMessage"];
+    const settings = [
+      "minAge",
+      "dateFormat",
+      "blockedTitle",
+      "blockedMessage",
+      "blockDurationHours"
+    ];
 
     settings.forEach(setting => {
-      console.log("forEach setting:\n", setting);
-
       const settingInState = this.state[setting];
-      console.log("settingInState:\n", settingInState);
 
       if (_.isEmpty(settingInState)) {
-        console.log("_isEmpty is true ", setting);
         // TODO : CHECK THIS OUT!!!
         this.setState({
           [setting]: _.get(nextExtension, "settings." + setting)
@@ -70,7 +69,6 @@ class AgeVerificationPage extends Component {
     });
 
     if (extension !== nextExtension && shouldRefresh(nextExtension)) {
-      console.log("entered if (extension !== next...)");
       this.props.fetchExtension();
     }
   }
@@ -103,6 +101,13 @@ class AgeVerificationPage extends Component {
     });
   };
 
+  handleBlockDurationChange = event => {
+    this.setState({
+      blockDurationHours: event.target.value,
+      hasChanges: true
+    });
+  };
+
   handleSubmit = event => {
     event.preventDefault();
     this.handleSave();
@@ -111,19 +116,34 @@ class AgeVerificationPage extends Component {
   handleSave = () => {
     const { extension } = this.props;
 
-    const { minAge, dateFormat, blockedTitle, blockedMessage } = this.state;
+    const {
+      minAge,
+      dateFormat,
+      blockedTitle,
+      blockedMessage,
+      blockDurationHours
+    } = this.state;
 
     const newSettings = {
       minAge,
       dateFormat,
       blockedTitle,
-      blockedMessage
+      blockedMessage,
+      blockDurationHours
     };
 
-    this.setState({ error: "", inProgress: true });
+    this.setState({
+      error: "",
+      inProgress: true
+    });
     this.props
       .updateExtensionSettings(extension, newSettings)
-      .then(() => this.setState({ hasChanges: false, inProgress: false }))
+      .then(() =>
+        this.setState({
+          hasChanges: false,
+          inProgress: false
+        })
+      )
       .catch(err => {
         this.setState({ error: err, inProgress: false });
       });
@@ -135,10 +155,13 @@ class AgeVerificationPage extends Component {
       dateFormat,
       blockedTitle,
       blockedMessage,
+      blockDurationHours,
       error,
       hasChanges,
       inProgress
     } = this.state;
+
+    console.log("AV Render\n", this.state, this.props);
 
     return (
       <div className="hello-extension-settings-page">
@@ -154,13 +177,21 @@ class AgeVerificationPage extends Component {
                   type="number"
                   min="13"
                   max="65"
+                  step="1"
                   className="form-control"
                   value={minAge}
                   onChange={this.handleMinAgeChange}
                   required
                 />
               </div>
-              <div style={{ flex: 1, flexDirection: "column", paddingLeft: 8 }}>
+              <div
+                style={{
+                  flex: 1,
+                  flexDirection: "column",
+                  paddingLeft: 8,
+                  paddingRight: 8
+                }}
+              >
                 <ControlLabel>Date Format:</ControlLabel>
                 <FormControl
                   className="form-control"
@@ -170,11 +201,34 @@ class AgeVerificationPage extends Component {
                   value={dateFormat}
                   required
                 >
-                  <option value="DD-MM-YYYY">DD-MM-YYYY</option>
-                  <option value="MM-DD-YYYY">MM-DD-YYYY</option>
-                  <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                  <option value="YYYY-DD-MM">YYYY-DD-MM</option>
+                  <option value="DD - MM - YYYY">DD - MM - YYYY</option>
+                  <option value="MM - DD - YYYY">MM - DD - YYYY</option>
+                  <option value="YYYY - MM - DD">YYYY - MM - DD</option>
+                  <option value="YYYY - DD - MM">YYYY - DD - MM</option>
+                  <option value="DD / MM / YYYY">DD / MM / YYYY</option>
+                  <option value="MM / DD / YYYY">MM / DD / YYYY</option>
+                  <option value="YYYY / MM / DD">YYYY / MM / DD</option>
+                  <option value="YYYY / DD / MM">YYYY / DD / MM</option>
                 </FormControl>
+              </div>
+              <div
+                style={{
+                  flex: 1,
+                  flexDirection: "column",
+                  paddingLeft: 8
+                }}
+              >
+                <ControlLabel>Block Duration (Hours):</ControlLabel>
+                <FormControl
+                  type="number"
+                  min="1"
+                  max="96"
+                  step="1"
+                  className="form-control"
+                  value={blockDurationHours}
+                  onChange={this.handleBlockDurationChange}
+                  required
+                />
               </div>
             </div>
             <ControlLabel>User Blocked Title:</ControlLabel>
