@@ -6,24 +6,24 @@
   "description": "COPPA Verification",
   "screens": [
     {
-      "name": "AgeVerificationScreen"
+      "name": "AgeVerificationComposer"
     },
     {
-      "name": "UserBlockedScreen"
+      "name": "UserBlocked"
     }
   ],
   "shortcuts": [
     {
       "title": "Age Verification",
       "description": "This screen lets users verify their age",
-      "name": "ageVerification",
-      "screen": "@.AgeVerificationScreen"
+      "name": "AgeVerificationComposer",
+      "screen": "@.AgeVerificationComposer"
     },
     {
       "title": "User Blocked",
       "description": "This screen blocks the user from using the app",
-      "name": "userBlocked",
-      "screen": "@.UserBlockedScreen"
+      "name": "UserBlocked",
+      "screen": "@.UserBlocked"
     }
   ],
   "pages": [
@@ -43,6 +43,9 @@
     "minAge": 13,
     "dateFormat": "DD-MM-YYYY",
     "blockedTitle": "User Blocked",
-    "blockedMessage": "You must be at least 13 years old to use this app"
+    "blockedMessage": "You must be at least 13 years old to use this app",
+    "blockDurationHours": 24,
+    "verifiedTitle": "Success!",
+    "verifiedMessage": "Enjoy your app experience!"
   }
 }

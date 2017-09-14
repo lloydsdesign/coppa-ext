@@ -29,20 +29,19 @@ class AgeVerificationPage extends Component {
 
     props.fetchExtension();
 
-    console.log("CTOR before setting state:\n", this.state);
-
     this.state = {
       error: null,
       minAge: _.get(props.extension, "settings.minAge"),
       dateFormat: _.get(props.extension, "settings.dateFormat"),
       blockedTitle: _.get(props.extension, "settings.blockedTitle"),
       blockedMessage: _.get(props.extension, "settings.blockedMessage"),
+      blockDurationHours: _.get(props.extension, "settings.blockDurationHours"),
+      verifiedTitle: _.get(props.extension, "settings.verifiedTitle"),
+      verifiedMessage: _.get(props.extension, "settings.verifiedMessage"),
       // flag indicating if value in input field is changed
       hasChanges: false,
       inProgress: false
     };
-
-    console.log("CTOR:\n", this.state);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -54,14 +53,15 @@ class AgeVerificationPage extends Component {
       "dateFormat",
       "blockedTitle",
       "blockedMessage",
-      "blockDurationHours"
+      "blockDurationHours",
+      "verifiedTitle",
+      "verifiedMessage"
     ];
 
     settings.forEach(setting => {
       const settingInState = this.state[setting];
 
       if (_.isEmpty(settingInState)) {
-        // TODO : CHECK THIS OUT!!!
         this.setState({
           [setting]: _.get(nextExtension, "settings." + setting)
         });
@@ -108,6 +108,20 @@ class AgeVerificationPage extends Component {
     });
   };
 
+  handleVerifiedTitleChange = event => {
+    this.setState({
+      verifiedTitle: event.target.value,
+      hasChanges: true
+    });
+  };
+
+  handleVerifiedMessageChange = event => {
+    this.setState({
+      verifiedMessage: event.target.value,
+      hasChanges: true
+    });
+  };
+
   handleSubmit = event => {
     event.preventDefault();
     this.handleSave();
@@ -121,7 +135,9 @@ class AgeVerificationPage extends Component {
       dateFormat,
       blockedTitle,
       blockedMessage,
-      blockDurationHours
+      blockDurationHours,
+      verifiedTitle,
+      verifiedMessage
     } = this.state;
 
     const newSettings = {
@@ -129,7 +145,9 @@ class AgeVerificationPage extends Component {
       dateFormat,
       blockedTitle,
       blockedMessage,
-      blockDurationHours
+      blockDurationHours,
+      verifiedTitle,
+      verifiedMessage
     };
 
     this.setState({
@@ -156,6 +174,8 @@ class AgeVerificationPage extends Component {
       blockedTitle,
       blockedMessage,
       blockDurationHours,
+      verifiedTitle,
+      verifiedMessage,
       error,
       hasChanges,
       inProgress
@@ -164,7 +184,7 @@ class AgeVerificationPage extends Component {
     console.log("AV Render\n", this.state, this.props);
 
     return (
-      <div className="hello-extension-settings-page">
+      <div className="age-verification-page">
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
             <h3>Configure Age Verification</h3>
@@ -249,18 +269,36 @@ class AgeVerificationPage extends Component {
               maxLength="500"
               required
             />
+            <ControlLabel>User Verified Title:</ControlLabel>
+            <FormControl
+              type="text"
+              className="form-control"
+              value={verifiedTitle}
+              onChange={this.handleVerifiedTitleChange}
+              maxLength="50"
+              required
+            />
+            <ControlLabel>User Verified Message:</ControlLabel>
+            <FormControl
+              type="text"
+              className="form-control"
+              value={verifiedMessage}
+              onChange={this.handleVerifiedMessageChange}
+              maxLength="500"
+              required
+            />
           </FormGroup>
           {error && <HelpBlock className="text-error">{error}</HelpBlock>}
+          <ButtonToolbar>
+            <Button
+              bsStyle="primary"
+              disabled={!hasChanges}
+              onClick={this.handleSave}
+            >
+              <LoaderContainer isLoading={inProgress}>Save</LoaderContainer>
+            </Button>
+          </ButtonToolbar>
         </form>
-        <ButtonToolbar>
-          <Button
-            bsStyle="primary"
-            disabled={!hasChanges}
-            onClick={this.handleSave}
-          >
-            <LoaderContainer isLoading={inProgress}>Save</LoaderContainer>
-          </Button>
-        </ButtonToolbar>
       </div>
     );
   }

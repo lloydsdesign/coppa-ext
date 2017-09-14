@@ -1,75 +1,54 @@
-import { Alert, AsyncStorage } from "react-native";
-
-import { isRSAA, RSAA } from "redux-api-middleware";
-
-import * as _ from "lodash";
-import URI from "urijs";
-
-import { UPDATE_SUCCESS } from "@shoutem/redux-io";
-
 import {
   isEmptyRoute,
   isNavigationAction,
-  navigateTo,
   redirectTo,
   rewrite,
   REPLACE,
-  RESET_TO_ROUTE,
-  reset
+  RESET_TO_ROUTE
 } from "@shoutem/core/navigation";
-
-import { priorities, setPriority, before } from "@shoutem/core/middlewareUtils";
-
-import { RESTART_APP } from "@shoutem/core/coreRedux";
-import { getExtensionSettings } from "shoutem.application";
+import { priorities, setPriority } from "@shoutem/core/middlewareUtils";
 
 import { ext } from "./extension";
 import {
   getPrefferedAction,
   SHOW_VERIFICATION,
   SKIP_VERIFICATION,
-  EXIT_APP,
-  STORAGE_KEY
+  EXIT_APP
 } from "./ageVerifier";
-
-import {
-  SCREEN_VERIFY,
-  SCREEN_SUCCESS,
-  SCREEN_BLOCKED,
-  BUTTON_CONTENT_CROSS
-} from "./screens/AgeVerification";
 
 const hasValidRoute = action => action.route && !isEmptyRoute(action.route);
 
 export const createLoginMiddleware = screens => {
+  // Uncomment this to test the functionality...
+  // REMOVE THIS IN PRODUCTION! ! ! !
+  // import { AsyncStorage } from "react-native";
+  // AsyncStorage.removeItem("@coppa-age-restricted-status");
+
   return setPriority(
     store => next => action => {
       // We want to intercept only actions with a route because this is the only way
       // to open a new screen.
+      const isExtensionScreen =
+        action.route == ext("AgeVerificationComposer") ||
+        action.route == ext("UserBlocked");
+
       const shouldIntercept =
         isNavigationAction(action) &&
         hasValidRoute(action) &&
-        (action.route != ext("AgeVerification") &&
-          action.route != ext("UserBlocked")); // This makes sure that we don't intercept the AgeVerification screen
+        !isExtensionScreen; // This makes sure that we don't intercept our own screens
 
       if (!shouldIntercept) {
         return next(action);
       }
 
-      // Uncomment this to test the functionality...
-      // First uncomment and start the app, then comment it out and restart...
-      //AsyncStorage.removeItem(STORAGE_KEY);
-
       // Helper function to replace the current screen with UserBlocked screen
       const gotoUserBlockedScreen = () => {
         return next(
           redirectTo(rewrite(action, RESET_TO_ROUTE), {
-            screen: ext("AgeVerification"),
+            screen: ext("UserBlocked"),
             title: "User Blocked",
             props: {
-              activeScreen: SCREEN_BLOCKED,
-              buttonContent: BUTTON_CONTENT_CROSS,
-              buttonWidth: 64
+              marginTopOverride: -57 // Ugly hack to cover navbar
             }
           })
         );
@@ -79,10 +58,10 @@ export const createLoginMiddleware = screens => {
       const gotoVerificationScreen = ({ onSuccess, onFailure }) => {
         return next(
           redirectTo(rewrite(action, RESET_TO_ROUTE), {
-            screen: ext("AgeVerification"),
+            screen: ext("AgeVerificationComposer"),
             props: {
-              onVerificationSuccess: onSuccess,
-              onVerificationFailure: onFailure
+              onVerifiedScreenDone: onSuccess,
+              onBlockedScreenDone: onFailure
             }
           })
         );

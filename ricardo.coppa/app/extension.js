@@ -3,13 +3,13 @@
 import pack from "./package.json";
 
 // screens imports
-import AgeVerification from "./screens/AgeVerification";
+import AgeVerificationComposer from "./screens/AgeVerificationComposer";
 import UserBlocked from "./screens/UserBlocked";
 
 // themes imports
 
 export const screens = {
-  AgeVerification,
+  AgeVerificationComposer,
   UserBlocked
 };
 

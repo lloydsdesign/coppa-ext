@@ -1,50 +1,22 @@
 import React, { Component } from "react";
-
-import {
-  Alert,
-  AsyncStorage,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Animated,
-  Dimensions,
-  ScrollView
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, Animated } from "react-native";
+import { connect } from "react-redux";
 
 import LinearGradient from "react-native-linear-gradient";
-
 import DatePicker from "react-native-datepicker";
 
+import { ext } from "../extension";
 import {
   getPrefferedAction,
   SHOW_VERIFICATION,
   SKIP_VERIFICATION,
-  EXIT_APP,
   checkAge
 } from "../ageVerifier";
-
-import {
-  replace,
-  navigateTo,
-  isNavigationAction
-} from "@shoutem/core/navigation";
-
-import { Icon } from "@shoutem/ui";
-
-import { ext } from "../extension";
-import { connect } from "react-redux";
-import UserBlocked from "./UserBlocked";
 import UserVerified from "./UserVerified";
+import UserBlocked from "./UserBlocked";
 
-export const BUTTON_CONTENT_CONFIRM = 0;
-export const BUTTON_CONTENT_CHECK = 1;
-export const BUTTON_CONTENT_CROSS = 2;
-export const BUTTON_CONTENT_DOTS = 3;
-
-export const SCREEN_VERIFY = 0;
-export const SCREEN_SUCCESS = 1;
-export const SCREEN_BLOCKED = 2;
+export const BUTTON_TEXT_CONFIRM = "C O N F I R M";
+export const BUTTON_TEXT_EMPTY = "";
 
 class AgeVerification extends Component {
   constructor(props) {
@@ -55,100 +27,54 @@ class AgeVerification extends Component {
 
     this.state = {
       enteredDate: date18Yago,
-      buttonContent: this.props.buttonContent || BUTTON_CONTENT_CONFIRM,
-      buttonWidth: this.props.buttonWidth || new Animated.Value(240),
-      fadableContentOpacity: new Animated.Value(1),
-      activeScreen: this.props.activeScreen || SCREEN_VERIFY
+      buttonText: BUTTON_TEXT_CONFIRM,
+      buttonWidth: new Animated.Value(240)
     };
   }
 
-  onDateChange = inputDate => {
+  _onDateChange = (inputDateString, inputDate) => {
     this.setState({ enteredDate: inputDate });
   };
 
-  verifyAge = (onVerified, onBlocked) => {
-    checkAge(this.state.enteredDate, this.props.minAge)
+  _verifyAge = ({ onVerified, onBlocked }) => {
+    const { minAge } = this.props;
+    const { enteredDate } = this.state;
+
+    checkAge(enteredDate, minAge)
       .then(getPrefferedAction)
       .then(prefferedAction => {
         if (prefferedAction == SKIP_VERIFICATION) {
           onVerified();
-          if (this.props.onVerificationSuccess)
-            setTimeout(this.props.onVerificationSuccess, 5000);
         } else {
           onBlocked();
-          if (this.props.onVerificationFailure)
-            setTimeout(this.props.onVerificationFailure, 5000);
         }
       });
   };
 
-  onButtonPress = () => {
-    Animated.parallel([
-      Animated.timing(this.state.buttonWidth, {
-        toValue: 64,
-        duration: 300
-      }),
-      Animated.timing(this.state.fadableContentOpacity, {
-        toValue: 0,
-        duration: 300
-      })
-    ]).start(() => {
-      this.verifyAge(
-        () => {
-          this.setState({
-            activeScreen: SCREEN_SUCCESS,
-            buttonContent: BUTTON_CONTENT_CHECK
-          });
-        },
-        () => {
-          this.setState({
-            activeScreen: SCREEN_BLOCKED,
-            buttonContent: BUTTON_CONTENT_CROSS
-          });
-        }
-      );
+  _onButtonPress = () => {
+    const { onVerified, onBlocked } = this.props;
+
+    Animated.timing(this.state.buttonWidth, {
+      toValue: 64,
+      duration: 300
+    }).start(() => {
+      this._verifyAge({
+        onVerified,
+        onBlocked
+      });
     });
 
     this.setState({
-      buttonContent: BUTTON_CONTENT_DOTS
+      buttonText: BUTTON_TEXT_EMPTY
     });
   };
 
-  getButtonContent = () => {
-    switch (this.state.buttonContent) {
-      case BUTTON_CONTENT_CONFIRM:
-        return <Text style={styles.confirmButtonText}>C O N F I R M</Text>;
-        break;
-      case BUTTON_CONTENT_CHECK:
-        return <Text style={{ fontSize: 48, color: "#ffffff" }}>✓</Text>;
-        break;
-      case BUTTON_CONTENT_CROSS:
-        return <Icon style={{ color: "#ffffff", fontSize: 48 }} name="close" />;
-        break;
-      case BUTTON_CONTENT_DOTS:
-        return <Text style={{ fontSize: 48, color: "#ffffff" }}>...</Text>;
-      default:
-        break;
-    }
-  };
+  render() {
+    const { buttonText } = this.state;
 
-  renderBlockScreen = renderButton => {
-    return <UserBlocked renderButton={renderButton} />;
-  };
-
-  renderSuccessScreen = renderButton => {
-    return <UserVerified renderButton={renderButton} />;
-  };
-
-  renderVerificationScreen = renderButton => {
     return (
       <LinearGradient colors={["#4CC2F1", "#66CCCC"]} style={styles.container}>
-        <Animated.View
-          style={[
-            styles.fadableContent,
-            { opacity: this.state.fadableContentOpacity }
-          ]}
-        >
+        <Animated.View style={styles.fadableContent}>
           <Text style={styles.title}>Verify Your Age</Text>
           <Text style={styles.subtitle}>
             In order to start using the app, you need to be {this.props.minAge}{" "}
@@ -170,53 +96,28 @@ class AgeVerification extends Component {
               dateInput: styles.datepickerInput,
               dateText: styles.datepickerText
             }}
-            onDateChange={this.onDateChange}
+            onDateChange={this._onDateChange}
           />
           <Text style={styles.datepickerSubtitle}>
             Please select your birth date
           </Text>
         </Animated.View>
-
-        {renderButton()}
+        <Animated.View
+          style={[
+            styles.confirmButtonWrapper,
+            { width: this.state.buttonWidth }
+          ]}
+        >
+          <TouchableOpacity
+            style={styles.confirmButton}
+            onPress={this._onButtonPress}
+            disabled={this.state.buttonText != BUTTON_TEXT_CONFIRM}
+          >
+            <Text style={styles.confirmButtonText}>{buttonText}</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </LinearGradient>
     );
-  };
-
-  renderButton = () => {
-    const buttonContent = this.getButtonContent();
-    return (
-      <Animated.View
-        style={[styles.confirmButtonWrapper, { width: this.state.buttonWidth }]}
-      >
-        <TouchableOpacity
-          style={styles.confirmButton}
-          onPress={this.onButtonPress}
-          disabled={this.state.buttonContent != BUTTON_CONTENT_CONFIRM}
-        >
-          {buttonContent}
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  };
-
-  render() {
-    const { activeScreen } = this.state;
-
-    let screen;
-    switch (activeScreen) {
-      case SCREEN_VERIFY:
-        screen = this.renderVerificationScreen(this.renderButton);
-        break;
-      case SCREEN_BLOCKED:
-        screen = this.renderBlockScreen(this.renderButton);
-        break;
-      case SCREEN_SUCCESS:
-        screen = this.renderSuccessScreen(this.renderButton);
-        break;
-      default:
-        break;
-    }
-    return <View style={{ flex: 1, marginTop: -57, zIndex: 1 }}>{screen}</View>;
   }
 }
 
@@ -230,13 +131,12 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 // connect screen to redux store
-export default connect(mapStateToProps, { replace, navigateTo })(
-  AgeVerification
-);
+export default connect(mapStateToProps)(AgeVerification);
 
 const styles = StyleSheet.create({
   container: {
-    zIndex: 1,
+    position: "relative",
+    zIndex: 10,
     flex: 1,
     alignItems: "center"
   },
@@ -278,7 +178,7 @@ const styles = StyleSheet.create({
   },
   confirmButtonWrapper: {
     position: "absolute",
-    top: "70%"
+    top: "60%"
   },
   confirmButton: {
     height: 64,

@@ -1,46 +1,62 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Text, Dimensions } from "react-native";
-import { ext } from "../extension";
+import { View, StyleSheet, Text } from "react-native";
 import { connect } from "react-redux";
 import LinearGradient from "react-native-linear-gradient";
+import { Image } from "@shoutem/ui";
 
-export default class UserVerified extends Component {
+import { ext } from "../extension";
+
+const TIMEOUT = 5000;
+
+class UserVerified extends Component {
+  componentDidMount() {
+    const { onSplashScreenDone } = this.props;
+
+    if (onSplashScreenDone) {
+      setTimeout(onSplashScreenDone, TIMEOUT);
+    }
+  }
+
   render() {
-    console.log("Rendering UserVerified");
-    const {
-      /* minAge, blockedTitle, blockedMessage,  */ renderButton
-    } = this.props;
+    const { verifiedTitle, verifiedMessage } = this.props;
 
     return (
       <LinearGradient colors={["#66CCCC", "#00DEC4"]} style={styles.container}>
-        <Text style={styles.title}>Success!</Text>
-        <Text style={styles.subtitle}>Enjoy your app experience!</Text>
-        {renderButton()}
+        <Text style={styles.title}>{verifiedTitle || "Success!"}</Text>
+        <Text style={styles.subtitle}>
+          {verifiedMessage || "Enjoy your app experience!"}
+        </Text>
+        <View style={styles.confirmButton}>
+          <Image
+            source={require("../assets/check.png")}
+            style={{ width: 48, height: 48 }}
+          />
+        </View>
       </LinearGradient>
     );
   }
-} /* 
+}
 
 const mapStateToProps = state => {
   const extName = ext();
-  const { minAge, blockedTitle, blockedMessage } = state[
+  const { verifiedTitle, verifiedMessage } = state[
     "shoutem.application"
   ].extensions[extName].attributes.settings;
 
   return {
-    blockedTitle,
-    blockedMessage,
-    minAge: parseInt(minAge, 10)
+    verifiedTitle,
+    verifiedMessage
   };
 };
 
-export default connect(mapStateToProps)(UserBlocked); */
+export default connect(mapStateToProps)(UserVerified);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     zIndex: 1,
-    alignItems: "center"
+    alignItems: "center",
+    width: "100%"
   },
   title: {
     fontSize: 36,
@@ -57,21 +73,19 @@ const styles = StyleSheet.create({
     color: "#ffffff"
   },
   confirmButton: {
+    position: "absolute",
+    top: "60%",
     height: 64,
+    width: 64,
     borderRadius: 32,
     marginTop: 22,
-    backgroundColor: "#147791",
+    backgroundColor: "#1EADA9",
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
-    elevation: 2
-  },
-  confirmButtonText: {
-    color: "#ffffff",
-    textAlign: "center",
-    fontSize: 18
+    elevation: 5
   }
 });

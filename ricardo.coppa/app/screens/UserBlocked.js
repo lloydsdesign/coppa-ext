@@ -1,19 +1,52 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Text, Dimensions } from "react-native";
-import { ext } from "../extension";
+import { View, StyleSheet, Text } from "react-native";
 import { connect } from "react-redux";
 import LinearGradient from "react-native-linear-gradient";
 
+import { Image } from "@shoutem/ui";
+import { ext } from "../extension";
+
+const TIMEOUT = 5000;
+
 class UserBlocked extends Component {
+  componentDidMount() {
+    const { onSplashScreenDone } = this.props;
+
+    if (onSplashScreenDone) {
+      setTimeout(onSplashScreenDone, TIMEOUT);
+    }
+  }
+
   render() {
-    console.log("Rendering UserBlocked");
-    const { minAge, blockedTitle, blockedMessage, renderButton } = this.props;
+    const {
+      minAge,
+      blockedTitle,
+      blockedMessage,
+      renderButton,
+      marginTopOverride
+    } = this.props;
+
+    // Ugly hack to cover navbar
+    const coverNavBar = marginTopOverride
+      ? { marginTop: marginTopOverride }
+      : {};
 
     return (
-      <LinearGradient colors={["#FF2EA6", "#4CC2F1"]} style={styles.container}>
+      <LinearGradient
+        colors={["#FF2EA6", "#4CC2F1"]}
+        style={[styles.container, coverNavBar]}
+      >
         <Text style={styles.title}>{blockedTitle || "We're sorry..."}</Text>
-        <Text style={styles.subtitle}>{blockedMessage || "You are under"}</Text>
-        {renderButton()}
+        <Text style={styles.subtitle}>
+          {blockedMessage ||
+            "You are under the minimum age required to use this app"}
+        </Text>
+        <View style={styles.confirmButton}>
+          <Image
+            source={require("../assets/cross.png")}
+            style={{ width: 32, height: 32 }}
+          />
+        </View>
       </LinearGradient>
     );
   }
@@ -38,7 +71,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     zIndex: 1,
-    alignItems: "center"
+    alignItems: "center",
+    width: "100%"
   },
   title: {
     fontSize: 36,
@@ -55,21 +89,19 @@ const styles = StyleSheet.create({
     color: "#ffffff"
   },
   confirmButton: {
+    position: "absolute",
+    top: "60%",
     height: 64,
+    width: 64,
     borderRadius: 32,
     marginTop: 22,
-    backgroundColor: "#147791",
+    backgroundColor: "#FF2EA6",
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
-    elevation: 2
-  },
-  confirmButtonText: {
-    color: "#ffffff",
-    textAlign: "center",
-    fontSize: 18
+    elevation: 5
   }
 });
