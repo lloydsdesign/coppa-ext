@@ -1,21 +1,56 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { TouchableOpacity, StyleSheet, Text, Animated } from "react-native";
 import { connect } from "react-redux";
 import LinearGradient from "react-native-linear-gradient";
 
 import { Image } from "@shoutem/ui";
 import { ext } from "../extension";
 
-const TIMEOUT = 5000;
+const TIMEOUT = 4500;
 
 class UserBlocked extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      buttonOpacity: new Animated.Value(1)
+    };
+  }
+
   componentDidMount() {
     const { onSplashScreenDone } = this.props;
-
-    if (onSplashScreenDone) {
-      setTimeout(onSplashScreenDone, TIMEOUT);
-    }
+    this.timeout = setTimeout(this._handleTimeout, TIMEOUT);
   }
+
+  _fadeOutButton = onAnimationDone => {
+    Animated.timing(this.state.buttonOpacity, {
+      toValue: 0,
+      duration: 1000
+    }).start(onAnimationDone);
+  };
+
+  _handleTimeout = () => {
+    this._fadeOutButton(() => {
+      const { onSplashScreenDone } = this.props;
+
+      if (onSplashScreenDone) {
+        onSplashScreenDone();
+      }
+    });
+  };
+
+  _onButtonPress = () => {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+
+      this._fadeOutButton(() => {
+        const { onSplashScreenDone } = this.props;
+        if (onSplashScreenDone) {
+          onSplashScreenDone();
+        }
+      });
+    }
+  };
 
   render() {
     const {
@@ -41,12 +76,16 @@ class UserBlocked extends Component {
           {blockedMessage ||
             "You are under the minimum age required to use this app"}
         </Text>
-        <View style={styles.confirmButton}>
-          <Image
-            source={require("../assets/cross.png")}
-            style={{ width: 32, height: 32 }}
-          />
-        </View>
+        <Animated.View
+          style={[styles.confirmButton, { opacity: this.state.buttonOpacity }]}
+        >
+          <TouchableOpacity onPress={this._onButtonPress}>
+            <Image
+              source={require("../assets/cross.png")}
+              style={{ width: 32, height: 32 }}
+            />
+          </TouchableOpacity>
+        </Animated.View>
       </LinearGradient>
     );
   }

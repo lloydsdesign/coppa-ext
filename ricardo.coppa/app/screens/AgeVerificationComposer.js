@@ -12,7 +12,8 @@ export default class AgeVerificationComposer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      frontScreenOpacity: new Animated.Value(1)
+      frontScreenOpacity: new Animated.Value(1),
+      shouldShowFrontScreen: true
     };
   }
 
@@ -20,7 +21,9 @@ export default class AgeVerificationComposer extends Component {
     Animated.timing(this.state.frontScreenOpacity, {
       toValue: 0,
       duration: 500
-    }).start();
+    }).start(() => {
+      this.setState({ shouldShowFrontScreen: false });
+    });
   };
 
   _onVerified = () => {
@@ -38,18 +41,27 @@ export default class AgeVerificationComposer extends Component {
   };
 
   _renderFrontScreen = () => {
-    const { frontScreenOpacity } = this.state;
+    const { frontScreenOpacity, shouldShowFrontScreen } = this.state;
 
-    return (
-      <Animated.View
-        style={[styles.frontScreen, { opacity: frontScreenOpacity }]}
-      >
-        <AgeVerification
-          onVerified={this._onVerified}
-          onBlocked={this._onBlocked}
-        />
-      </Animated.View>
-    );
+    if (shouldShowFrontScreen) {
+      return (
+        <Animated.View
+          style={[
+            styles.frontScreen,
+            {
+              opacity: frontScreenOpacity
+            }
+          ]}
+        >
+          <AgeVerification
+            onVerified={this._onVerified}
+            onBlocked={this._onBlocked}
+          />
+        </Animated.View>
+      );
+    }
+
+    return null;
   };
 
   _renderBackScreen = () => {
@@ -71,8 +83,8 @@ export default class AgeVerificationComposer extends Component {
 
     return (
       <View style={styles.container}>
-        {frontScreen}
         <View style={styles.backScreen}>{backScreen}</View>
+        {frontScreen}
       </View>
     );
   }

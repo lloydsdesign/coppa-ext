@@ -111,7 +111,7 @@ class AgeVerification extends Component {
           <TouchableOpacity
             style={styles.confirmButton}
             onPress={this._onButtonPress}
-            disabled={this.state.buttonText != BUTTON_TEXT_CONFIRM}
+            disabled={buttonText != BUTTON_TEXT_CONFIRM}
           >
             <Text style={styles.confirmButtonText}>{buttonText}</Text>
           </TouchableOpacity>

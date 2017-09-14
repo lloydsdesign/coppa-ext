@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { TouchableOpacity, StyleSheet, Text } from "react-native";
 import { connect } from "react-redux";
 import LinearGradient from "react-native-linear-gradient";
 import { Image } from "@shoutem/ui";
@@ -13,9 +13,20 @@ class UserVerified extends Component {
     const { onSplashScreenDone } = this.props;
 
     if (onSplashScreenDone) {
-      setTimeout(onSplashScreenDone, TIMEOUT);
+      this.timeout = setTimeout(onSplashScreenDone, TIMEOUT);
     }
   }
+
+  _onButtonPress = () => {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+
+      const { onSplashScreenDone } = this.props;
+      if (onSplashScreenDone) {
+        onSplashScreenDone();
+      }
+    }
+  };
 
   render() {
     const { verifiedTitle, verifiedMessage } = this.props;
@@ -26,12 +37,15 @@ class UserVerified extends Component {
         <Text style={styles.subtitle}>
           {verifiedMessage || "Enjoy your app experience!"}
         </Text>
-        <View style={styles.confirmButton}>
+        <TouchableOpacity
+          style={styles.confirmButton}
+          onPress={this._onButtonPress}
+        >
           <Image
             source={require("../assets/check.png")}
             style={{ width: 48, height: 48 }}
           />
-        </View>
+        </TouchableOpacity>
       </LinearGradient>
     );
   }
