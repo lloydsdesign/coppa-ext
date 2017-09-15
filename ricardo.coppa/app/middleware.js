@@ -18,10 +18,10 @@ import {
 
 const hasValidRoute = action => action.route && !isEmptyRoute(action.route);
 
+//import { AsyncStorage } from "react-native";
 export const createLoginMiddleware = screens => {
   // Uncomment this to test the functionality...
   // REMOVE THIS IN PRODUCTION! ! ! !
-  // import { AsyncStorage } from "react-native";
   // AsyncStorage.removeItem("@coppa-age-restricted-status");
 
   return setPriority(

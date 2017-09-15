@@ -75,11 +75,8 @@ class AgeVerification extends Component {
     return (
       <LinearGradient colors={["#4CC2F1", "#66CCCC"]} style={styles.container}>
         <Animated.View style={styles.fadableContent}>
-          <Text style={styles.title}>Verify Your Age</Text>
-          <Text style={styles.subtitle}>
-            In order to start using the app, you need to be {this.props.minAge}{" "}
-            or older
-          </Text>
+          <Text style={styles.title}>Enter Your Age</Text>
+          <Text style={styles.subtitle} />
           <DatePicker
             style={styles.datepicker}
             date={this.state.enteredDate}
@@ -136,6 +133,7 @@ export default connect(mapStateToProps)(AgeVerification);
 const styles = StyleSheet.create({
   container: {
     position: "relative",
+    width: "100%",
     zIndex: 10,
     flex: 1,
     alignItems: "center"

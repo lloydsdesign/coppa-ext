@@ -6,7 +6,7 @@ import { Image } from "@shoutem/ui";
 
 import { ext } from "../extension";
 
-const TIMEOUT = 5000;
+const TIMEOUT = 3500;
 
 class UserVerified extends Component {
   componentDidMount() {

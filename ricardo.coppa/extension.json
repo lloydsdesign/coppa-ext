@@ -1,7 +1,7 @@
 {
   "name": "coppa",
   "version": "0.0.1",
-  "platform": "1.1.*",
+  "platform": "1.2.*",
   "title": "COPPA Verification",
   "description": "COPPA Verification",
   "screens": [

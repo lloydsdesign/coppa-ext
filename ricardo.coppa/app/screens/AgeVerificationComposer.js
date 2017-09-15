@@ -103,7 +103,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     marginTop: 0,
     zIndex: 2,
-    height: "100%"
+    height: "100%",
+    width: "100%"
   },
   backScreen: {
     position: "absolute",
